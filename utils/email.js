@@ -1,28 +1,68 @@
 const nodemailer = require('nodemailer');
+const pug = require('pug');
 
-const sendEmail = async options => {
-  // 1) Create a transporter
-  const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST,
-    port: process.env.EMAIL_PORT,
-    auth: {
-      user: process.env.EMAIL_USERNAME,
-      pass: process.env.EMAIL_PASSWORD
+module.exports = class Email {
+  constructor(user) {
+    this.user = user;
+    this.to = user.email;
+    this.from = process.env.EMAIL_MAIN;
+    this.firstName = user.name.split(' ')[0];
+  }
+
+  newTransport() {
+    if (process.env.NODE_ENV === 'production') {
+      // Sendgrid
+      return nodemailer.createTransport({
+        service: 'SendGrid',
+        auth: {
+          user: process.env.SENDGRID_USERNAME,
+          pass: process.env.SENDGRID_PASSWORD
+        }
+      });
     }
-    // Activate in gmail "less secure app" option
-  });
+    return nodemailer.createTransport({
+      host: process.env.EMAIL_HOST,
+      port: process.env.EMAIL_PORT,
+      auth: {
+        user: process.env.EMAIL_USERNAME,
+        pass: process.env.EMAIL_PASSWORD
+      }
+    });
+  }
 
-  // 2) Define the email options
-  const mailOptions = {
-    from: process.env.EMAIL_MAIN,
-    to: options.email,
-    subject: options.subject,
-    text: options.message
-    // html: options.html
-  };
+  async send(template, subject, tempPassword) {
+    const html = pug.renderFile(`${__dirname}/../views/email/${template}.pug`, {
+      subject,
+      user: this.user,
+      tempPassword,
+      test: 'teste',
+      firstName: this.firstName
+    });
 
-  // 3) Actually send the email
-  await transporter.sendMail(mailOptions);
+    // 2) Define the email options
+    const mailOptions = {
+      from: this.from,
+      to: this.to,
+      subject,
+      html
+    };
+
+    // 3) Actually send the email
+    await this.newTransport().sendMail(mailOptions);
+  }
+
+  async sendEmailNewAccount() {
+    const tempPassword = await this.user.createTempPassword();
+    const template = 'newAccount';
+    const subject =
+      'Bem vindo ao Ultimate ToDo App! Essa é sua senha provisória (você tem 10 minutos para fazer login com essa senha).';
+    await this.send(template, subject, tempPassword);
+  }
+
+  async sendEmailForgotPassword() {
+    const tempPassword = await this.user.createTempPassword();
+    const template = 'forgotPassword';
+    const subject = 'Ultimate ToDo App! Esqueceu sua senha?';
+    await this.send(template, subject, tempPassword);
+  }
 };
-
-module.exports = sendEmail;

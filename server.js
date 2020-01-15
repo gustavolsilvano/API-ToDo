@@ -27,4 +27,18 @@ const server = app.listen(port, () => {
   console.log(`Server listening on port ${port}...`);
 });
 
-// server.timeout = 5000;
+// Handling shutting down due to unhandled rejection
+process.on('unhandledRejection', err => {
+  console.log('UNHANDLED REJECTION! 💥 Shutting down...');
+  console.log(err.name, err.message);
+  server.close(() => {
+    process.exit(1);
+  });
+});
+
+process.on('SIGTERM', () => {
+  console.log('SIGTERM RECEIVED. Shutting down.... 👌');
+  server.close(() => {
+    console.log('PROCESS TERMINATED 💥');
+  });
+});

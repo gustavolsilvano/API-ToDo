@@ -6,7 +6,7 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const User = require('../model/userModel');
 
-const sendTokenEmail = require('../function/sendEmail');
+const Email = require('../utils/email');
 
 const signToken = id => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -46,20 +46,17 @@ exports.signUp = catchAsync(async (req, res, next) => {
       isNewAccount: true
     });
   }
-
   req.user = newUser;
 
   // Email com senha provisória
-  req.message = `Bem vindo ao Ultimate ToDo App! Utilize a senha provisória abaixo para realizar seu primeiro login. Lembre-se que você só possui 10 minutos.\n<TOKEN>`;
-  req.messageReturn =
+  const messageReturn =
     'Email de autenticação foi enviado. Verifique sua caixa de email e utilize a senha provisória para realizar seu primerio login.';
-  req.tokenType = 'email';
 
-  await sendTokenEmail(req);
+  await new Email(newUser).sendEmailNewAccount();
 
   res.status(200).json({
     status: 'success',
-    message: req.messageReturn
+    message: messageReturn
   });
 });
 
@@ -192,15 +189,13 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 
   //TODO implementar usuário ativo ou não se deletar usuário, o mesmo não é pra deletar no BD e sim transformar em inativo
 
-  req.message = `Esqueceu sua senha? Não tem problema. Utilize a senha provisória abaixo para realizar login. Ao realizar o login, você será redirecionado para uma tela de redefinição de senha. Lembre-se que você tem 10 minutos para fazer essa operação.\n<TOKEN>`;
-  req.messageReturn = 'Email com senha provisória enviada.';
-  req.tokenType = 'forgotPassword';
+  const messageReturn = 'Email com senha provisória enviada.';
 
-  await sendTokenEmail(req);
+  await new Email(user).sendEmailForgotPassword();
 
   res.status(200).json({
     status: 'success',
-    message: req.messageReturn
+    message: messageReturn
   });
 });
 

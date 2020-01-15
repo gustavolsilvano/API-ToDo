@@ -1,0 +1,21 @@
+extends base
+
+block content
+    p Ola #{firstName},
+    p Bom vindo ao Ultimate ToDo App 👌👌!
+    p Com esse app você poderá organizar seus goals de curto, médio e longo prazo.
+    p O que está esperando? Inicie sua sessão utilizando a senha provisória abaixo!
+    table.btn.btn-primary(role='presentation', border='0', cellpadding='0', cellspacing='0')
+        tbody
+            tr
+                td(align='left')
+                    table(role='presentation', border='0', cellpadding='0', cellspacing='0')
+                        tbody
+                            tr
+                                td
+                                    a(target='_blank') #{tempPassword}
+    p Esperamos que você aproveite ao máximo o App!
+    p - TucDev
+    
+    p Não foi você que abriu uma nova conta? Acesse o link abaixo para retirarmos seu email do nosso banco de dados.
+    a(href='#') Excluir conta
