@@ -46,7 +46,7 @@ module.exports = class Email {
       subject,
       html
     };
-
+    console.log('mailOPtions', mailOptions);
     // 3) Actually send the email
     await this.newTransport().sendMail(mailOptions);
   }

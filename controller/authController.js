@@ -191,7 +191,11 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 
   const messageReturn = 'Email com senha provisória enviada.';
 
-  await new Email(user).sendEmailForgotPassword();
+  try {
+    await new Email(user).sendEmailForgotPassword();
+  } catch (err) {
+    console.log('Erro ao enviar email', err);
+  }
 
   res.status(200).json({
     status: 'success',
