@@ -195,6 +195,8 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     await new Email(user).sendEmailForgotPassword();
   } catch (err) {
     console.log('Erro ao enviar email', err);
+    console.log('Tentando enviar pelo gmail');
+    await new Email(user).sendEmailForgotPassword('gmail');
   }
 
   res.status(200).json({

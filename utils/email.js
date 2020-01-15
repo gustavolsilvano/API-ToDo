@@ -9,12 +9,12 @@ module.exports = class Email {
     this.firstName = user.name.split(' ')[0];
   }
 
-  newTransport() {
+  newTransport(server) {
     if (process.env.NODE_ENV === 'production') {
       console.log('Enviando email');
 
       // Sendgrid
-      if (process.env.EMAIL_SERVER === 'SENDGRID') {
+      if (process.env.EMAIL_SERVER === 'SENDGRID' || server === 'sendgrid') {
         console.log('Enviando email SENDGRID');
         return nodemailer.createTransport({
           service: 'SendGrid',
@@ -26,15 +26,15 @@ module.exports = class Email {
       }
 
       //GMAIL
-      if (process.env.EMAIL_SERVER === 'GMAIL') {
+      if (process.env.EMAIL_SERVER === 'GMAIL' || server === 'gmail') {
         console.log('Enviando email GMAIL');
         return nodemailer.createTransport({
           host: 'smtp.gmail.com',
           port: 465,
           secure: true,
           auth: {
-            user: 'tucdev@gmail.com',
-            pass: 'GUD@270403'
+            user: process.env.GMAIL_EMAIL,
+            pass: process.env.GMAIL_PASSWORD
           }
         });
       }
@@ -49,7 +49,7 @@ module.exports = class Email {
     });
   }
 
-  async send(template, subject, tempPassword) {
+  async send(template, subject, tempPassword, server) {
     const html = pug.renderFile(`${__dirname}/../views/email/${template}.pug`, {
       subject,
       user: this.user,
@@ -66,7 +66,7 @@ module.exports = class Email {
       html
     };
     // 3) Actually send the email
-    await this.newTransport().sendMail(mailOptions);
+    await this.newTransport(server).sendMail(mailOptions);
   }
 
   async sendEmailNewAccount() {
@@ -77,10 +77,10 @@ module.exports = class Email {
     await this.send(template, subject, tempPassword);
   }
 
-  async sendEmailForgotPassword() {
+  async sendEmailForgotPassword(server) {
     const tempPassword = await this.user.createTempPassword();
     const template = 'forgotPassword';
     const subject = 'Ultimate ToDo App! Esqueceu sua senha?';
-    await this.send(template, subject, tempPassword);
+    await this.send(template, subject, tempPassword, server);
   }
 };
