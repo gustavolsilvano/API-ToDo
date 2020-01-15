@@ -26,8 +26,8 @@ app.use(cors());
 app.options('*', cors());
 
 // Definindo rotas
-app.use('/api/v1/users', userRouter);
-app.use('/api/v1/card', cardRouter);
+app.use('/users', userRouter);
+app.use('/card', cardRouter);
 
 app.use(globalErrorHandler);
 
