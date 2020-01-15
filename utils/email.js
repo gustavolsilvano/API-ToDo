@@ -11,12 +11,22 @@ module.exports = class Email {
 
   newTransport() {
     if (process.env.NODE_ENV === 'production') {
+      console.log('aqui 👌👌👌');
       // Sendgrid
       return nodemailer.createTransport({
-        service: 'SendGrid',
+        //   service: 'SendGrid',
+        //   auth: {
+        //     user: process.env.SENDGRID_USERNAME,
+        //     pass: process.env.SENDGRID_PASSWORD
+        //   }
+        // });
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
         auth: {
-          user: process.env.SENDGRID_USERNAME,
-          pass: process.env.SENDGRID_PASSWORD
+          // should be replaced with real sender's account
+          user: 'tucdev@gmail.com',
+          pass: 'GUD@270403'
         }
       });
     }
@@ -41,7 +51,7 @@ module.exports = class Email {
 
     // 2) Define the email options
     const mailOptions = {
-      from: this.from,
+      // from: this.from,
       to: this.to,
       subject,
       html
