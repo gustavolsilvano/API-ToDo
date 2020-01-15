@@ -1,10 +1,10 @@
+const cors = require('cors');
 const path = require('path');
 const express = require('express');
 const timeout = require('connect-timeout');
 const userRouter = require('./router/userRouter');
 const cardRouter = require('./router/cardRouter');
 const globalErrorHandler = require('./controller/errorController');
-const cors = require('cors');
 
 const app = express();
 app.enable('trust proxy');
