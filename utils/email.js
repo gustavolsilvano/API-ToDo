@@ -11,24 +11,33 @@ module.exports = class Email {
 
   newTransport() {
     if (process.env.NODE_ENV === 'production') {
-      console.log('aqui 👌👌👌');
+      console.log('Enviando email');
 
       // Sendgrid
-      return nodemailer.createTransport({
-        //   service: 'SendGrid',
-        //   auth: {
-        //     user: process.env.SENDGRID_USERNAME,
-        //     pass: process.env.SENDGRID_PASSWORD
-        //   }
-        // });
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
-        auth: {
-          user: 'tucdev@gmail.com',
-          pass: 'GUD@270403'
-        }
-      });
+      if (process.env.EMAIL_SERVER === 'SENDGRID') {
+        console.log('Enviando email SENDGRID');
+        return nodemailer.createTransport({
+          service: 'SendGrid',
+          auth: {
+            user: process.env.SENDGRID_USERNAME,
+            pass: process.env.SENDGRID_PASSWORD
+          }
+        });
+      }
+
+      //GMAIL
+      if (process.env.EMAIL_SERVER === 'GMAIL') {
+        console.log('Enviando email GMAIL');
+        return nodemailer.createTransport({
+          host: 'smtp.gmail.com',
+          port: 465,
+          secure: true,
+          auth: {
+            user: 'tucdev@gmail.com',
+            pass: 'GUD@270403'
+          }
+        });
+      }
     }
     return nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
