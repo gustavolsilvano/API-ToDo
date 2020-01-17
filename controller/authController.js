@@ -183,6 +183,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 // ------------------------------Forgot Password----------------------
 //TODO colocar senha, verificar se é igual provisório e não dizer se expirou
 exports.forgotPassword = catchAsync(async (req, res, next) => {
+  console.log('Forgot password');
   // Verifcar se email existe
   const user = await User.findOne({ email: req.body.email });
 
