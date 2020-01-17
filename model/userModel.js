@@ -47,7 +47,11 @@ const userSchema = mongoose.Schema({
   },
   isWithTempPassword: Boolean,
   tempPasswordExpire: Date,
-  isNewAccount: Boolean
+  isNewAccount: Boolean,
+  isActive: {
+    type: Boolean,
+    default: true
+  }
 });
 
 userSchema.pre('save', async function(next) {

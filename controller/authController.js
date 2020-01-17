@@ -27,29 +27,42 @@ const createSendToken = (req, res, statusCode) => {
   });
 };
 
-// -------------------------ROUTE TEST----------------------
-exports.routeTest = (req, res, next) => {
-  console.log('Passando na rota teste', req.body.data._parts);
-  next();
-};
-
 // ------------------------------SIGN UP----------------------
-// TODO email não está vindo correto, tem que alterar para localhost
 exports.signUp = catchAsync(async (req, res, next) => {
-  let newUser = await User.findOne({ email: req.body.email });
+  let newUser = await User.findOne({ email: req.body.userEmail });
+  let userToDelete;
+  // Verifica se email está cadastrado e não é de usuário não ativo
+  if (newUser && newUser.isActive === true)
+    return next(new AppError('Email já está cadastrado', 400));
 
-  if (newUser) return next(new AppError('Email já está cadastrado', 400));
+  // Se existir usuário e o mesmo estiver inativo e estiver tentando cadastrar novamente,
+  // primeiro deve-se limpar o email, uma vez que quando for criar não pode ter email iguais
 
+  if (newUser && newUser.isActive === false) {
+    await User.findByIdAndUpdate(newUser._id, { email: '' });
+    userToDelete = newUser;
+  }
+
+  // Definindo se existe foto para perfil
+  let userPhoto = 'profilePlaceholder.jpg';
+  if (req.file && req.file.filename) userPhoto = req.file.filename;
+
+  // Cria novo usuário
   if (!newUser) {
     newUser = await User.create({
-      name: req.body.name,
-      email: req.body.email,
+      name: req.body.userName,
+      email: req.body.userEmail,
       password: '123456789',
       confirmPassword: '123456789',
       isWithTempPassword: true,
       isNewAccount: true,
-      photo: 'profilePlaceholder.jpg'
+      photo: userPhoto
     });
+  }
+
+  // Delete usuário antigo
+  if (newUser && newUser.isActive === false) {
+    await User.findByIdAndUpdate(userToDelete._id, { email: '' });
   }
 
   req.user = newUser;
@@ -95,6 +108,14 @@ exports.login = catchAsync(async (req, res, next) => {
   if (!user) {
     return next(new AppError('Email ou senha incorreto', 401));
   }
+
+  // Verifica se é usuário ativo
+  if (user.isActive === false)
+    return next(
+      new AppError(
+        'A conta desse email foi cancelada. Você precisa criar um novo usuário para voltar a utilizar esse aplicativo.'
+      )
+    );
 
   // Verifica se está com senha provisória
 
@@ -183,7 +204,6 @@ exports.protect = catchAsync(async (req, res, next) => {
 // ------------------------------Forgot Password----------------------
 //TODO colocar senha, verificar se é igual provisório e não dizer se expirou
 exports.forgotPassword = catchAsync(async (req, res, next) => {
-  console.log('Forgot password');
   // Verifcar se email existe
   const user = await User.findOne({ email: req.body.email });
 
