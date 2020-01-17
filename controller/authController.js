@@ -1,11 +1,9 @@
 const jwt = require('jsonwebtoken');
-
 const { promisify } = require('util');
 
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const User = require('../model/userModel');
-
 const Email = require('../utils/email');
 
 const signToken = id => {
@@ -29,6 +27,12 @@ const createSendToken = (req, res, statusCode) => {
   });
 };
 
+// -------------------------ROUTE TEST----------------------
+exports.routeTest = (req, res, next) => {
+  console.log('Passando na rota teste', req.body.data._parts);
+  next();
+};
+
 // ------------------------------SIGN UP----------------------
 // TODO email não está vindo correto, tem que alterar para localhost
 exports.signUp = catchAsync(async (req, res, next) => {
@@ -43,9 +47,11 @@ exports.signUp = catchAsync(async (req, res, next) => {
       password: '123456789',
       confirmPassword: '123456789',
       isWithTempPassword: true,
-      isNewAccount: true
+      isNewAccount: true,
+      photo: 'profilePlaceholder.jpg'
     });
   }
+
   req.user = newUser;
 
   // Email com senha provisória
@@ -56,7 +62,10 @@ exports.signUp = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: 'success',
-    message: messageReturn
+    message: messageReturn,
+    data: {
+      user: newUser
+    }
   });
 });
 

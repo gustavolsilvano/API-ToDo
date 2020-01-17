@@ -1,5 +1,6 @@
 const cors = require('cors');
 const path = require('path');
+
 const express = require('express');
 const timeout = require('connect-timeout');
 const userRouter = require('./router/userRouter');
@@ -7,6 +8,7 @@ const cardRouter = require('./router/cardRouter');
 const globalErrorHandler = require('./controller/errorController');
 
 const app = express();
+
 app.enable('trust proxy');
 
 app.set('view engine', 'pug');
@@ -24,6 +26,9 @@ app.use(timeout('10s'));
 // Handleling CORS
 app.use(cors());
 app.options('*', cors());
+
+// Servindo servidor com arquivos estaticos
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Definindo rotas
 app.use('/users', userRouter);

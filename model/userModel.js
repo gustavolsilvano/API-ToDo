@@ -34,6 +34,9 @@ const userSchema = mongoose.Schema({
       message: 'As senhas devem ser identicas'
     }
   },
+  photo: {
+    type: String
+  },
   dateLoginAttempt: {
     type: Date,
     default: null

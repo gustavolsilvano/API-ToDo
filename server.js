@@ -19,7 +19,8 @@ mongoose
     useFindAndModify: false,
     useUnifiedTopology: true
   })
-  .then(() => console.log('DB connection successful!'));
+  .then(() => console.log('DB connection successful!'))
+  .catch(err => console.log('Erro mongoDB', err));
 
 const port = process.env.PORT || 3000;
 
